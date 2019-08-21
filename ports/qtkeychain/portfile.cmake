@@ -1,6 +1,4 @@
 include(vcpkg_common_functions)
-include(vcpkg_common_functions)
-
 
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
@@ -34,10 +32,16 @@ vcpkg_install_cmake()
 vcpkg_copy_pdbs()
 
 # Remove unneeded dirs
+file(MAKE_DIRECTORY ${CURRENT_PACKAGES_DIR}/share/qt5/mkspecs/modules)
+file(COPY ${CURRENT_PACKAGES_DIR}/mkspecs/modules/qt_Qt5Keychain.pri DESTINATION ${CURRENT_PACKAGES_DIR}/share/qt5/mkspecs/modules)
+file(GLOB QT5KEYCHAIN_CMAKE_FILE ${CURRENT_PACKAGES_DIR}/lib/cmake/*)
+file(COPY ${QT5KEYCHAIN_CMAKE_FILE} DESTINATION ${CURRENT_PACKAGES_DIR}/share/cmake)
 file(REMOVE_RECURSE 
 	${CURRENT_PACKAGES_DIR}/debug/include
 	${CURRENT_PACKAGES_DIR}/debug/lib/cmake
 	${CURRENT_PACKAGES_DIR}/lib/cmake
+	${CURRENT_PACKAGES_DIR}/mkspecs
+	${CURRENT_PACKAGES_DIR}/debug/mkspecs
 )
 
 # Handle copyright
