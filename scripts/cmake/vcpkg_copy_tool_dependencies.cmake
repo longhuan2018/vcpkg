@@ -63,6 +63,10 @@
 ##      DEBUG
 ##  )
 function(vcpkg_copy_tool_dependencies)
+    find_program(PS_EXE powershell PATHS ${DOWNLOADS}/tool)
+    if (PS_EXE-NOTFOUND)
+        message(FATAL_ERROR "Could not find powershell in vcpkg tools, please open an issue to report this.")
+    endif()
     cmake_parse_arguments(_ctdb "" "TOOL_DIR" "OUTPUT_DIR;SEARCH_DIRS;DEBUG" ${ARGN})
     if(NOT DEFINED _ctdb_OUTPUT_DIR)
         if(${ARGC} GREATER 0)
@@ -86,17 +90,18 @@ function(vcpkg_copy_tool_dependencies)
         endif()
     endif()
 
-    message(STATUS "vcpkg_copy_tool_dependencies TOOL_DIR = ${_ctdb_TOOL_DIR}" " OUTPUT_DIR = ${_ctdb_OUTPUT_DIR}" " SEARCH_DIRS = ${_ctdb_SEARCH_DIRS}")
     macro(search_for_dependencies PATH_TO_SEARCH)
-        #message(STATUS "search_for_dependencies ${PATH_TO_SEARCH}")
         file(GLOB TOOLS ${_ctdb_TOOL_DIR}/*.exe ${_ctdb_TOOL_DIR}/*.dll)
         foreach(TOOL ${TOOLS})
-            execute_process(COMMAND powershell -noprofile -executionpolicy Bypass -nologo
-                -file ${SCRIPTS}/buildsystems/msbuild/applocal.ps1
-                -targetBinary ${TOOL}
-                -installedDir ${PATH_TO_SEARCH}
-                -outputDir    ${_ctdb_OUTPUT_DIR}
-                OUTPUT_VARIABLE OUT)
+            vcpkg_execute_required_process(
+                COMMAND ${PS_EXE} -noprofile -executionpolicy Bypass -nologo
+                    -file ${SCRIPTS}/buildsystems/msbuild/applocal.ps1
+                    -targetBinary ${TOOL}
+                    -installedDir ${PATH_TO_SEARCH}
+                    -outputDir    ${_ctdb_OUTPUT_DIR}
+                WORKING_DIRECTORY ${VCPKG_ROOT_DIR}
+                LOGNAME copy-tool-dependencies
+                )
         endforeach()
     endmacro()
 
