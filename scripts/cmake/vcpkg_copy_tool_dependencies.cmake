@@ -101,7 +101,7 @@ function(vcpkg_copy_tool_dependencies)
                     -outputDir    ${_ctdb_OUTPUT_DIR}
                 WORKING_DIRECTORY ${VCPKG_ROOT_DIR}
                 LOGNAME copy-tool-dependencies
-                )
+            )
         endforeach()
     endmacro()
 
